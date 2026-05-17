@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Telegram Mini App Svet Preview</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --card: #171a21;
+      --card-2: #1f2430;
+      --text: #f4f6fb;
+      --muted: #9ca3af;
+      --accent: #4f8cff;
+      --green: #22c55e;
+      --yellow: #facc15;
+      --red: #ef4444;
+      --border: rgba(255,255,255,.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .phone {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      background: linear-gradient(180deg, #121722 0%, #0f1115 100%);
+      padding: 18px;
+    }
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .title { font-size: 22px; font-weight: 800; }
+    .subtitle { color: var(--muted); font-size: 14px; margin-top: 4px; }
+    .pill { padding: 8px 12px; background: var(--card); border: 1px solid var(--border); border-radius: 999px; font-size: 13px; color: var(--muted); }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 22px; padding: 16px; margin-bottom: 14px; box-shadow: 0 16px 40px rgba(0,0,0,.2); }
+    .object-row { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+    .object-name { font-size: 17px; font-weight: 750; margin-bottom: 6px; }
+    .address { color: var(--muted); font-size: 14px; line-height: 1.35; }
+    .status { font-size: 13px; padding: 7px 10px; border-radius: 999px; white-space: nowrap; }
+    .assigned { background: rgba(250,204,21,.12); color: var(--yellow); }
+    .progress { background: rgba(79,140,255,.14); color: #8db6ff; }
+    .done { background: rgba(34,197,94,.13); color: var(--green); }
+    .btn { width: 100%; border: 0; color: white; background: var(--accent); padding: 14px 16px; border-radius: 16px; font-weight: 750; font-size: 15px; margin-top: 12px; cursor: pointer; }
+    .btn.secondary { background: var(--card-2); color: var(--text); }
+    .btn.danger { background: rgba(239,68,68,.12); color: #ff9a9a; }
+    .timeline { display: grid; gap: 10px; margin: 14px 0; }
+    .step { display: flex; gap: 10px; align-items: center; color: var(--muted); font-size: 14px; }
+    .step.done-step { color: var(--text); }
+    .dot { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--card-2); color: var(--muted); font-size: 12px; }
+    .done-step .dot { background: rgba(34,197,94,.16); color: var(--green); }
+    .hidden { display: none; }
+    .nav { position: sticky; bottom: 14px; background: rgba(23,26,33,.86); backdrop-filter: blur(14px); border: 1px solid var(--border); border-radius: 22px; padding: 8px; display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 20px; }
+    .nav button { border: 0; background: transparent; color: var(--muted); padding: 10px 6px; border-radius: 14px; }
+    .nav button.active { background: var(--card-2); color: var(--text); }
+  </style>
+</head>
+<body>
+  <main class="phone">
+    <section id="home">
+      <div class="topbar">
+        <div>
+          <div class="title">Объекты</div>
+          <div class="subtitle">2 активных объекта</div>
+        </div>
+        <div class="pill">Svet</div>
+      </div>
+
+      <div class="card">
+        <div class="object-row">
+          <div>
+            <div class="object-name">ЖК Светлый</div>
+            <div class="address">ул. Абая 10, кв. 24<br/>Сегодня до 18:00</div>
+          </div>
+          <div class="status assigned">Назначен</div>
+        </div>
+        <button class="btn" onclick="openObject(0)">Открыть объект</button>
+      </div>
+
+      <div class="card">
+        <div class="object-row">
+          <div>
+            <div class="object-name">Частный дом</div>
+            <div class="address">мкр. Таугуль<br/>В работе</div>
+          </div>
+          <div class="status progress">В работе</div>
+        </div>
+        <button class="btn" onclick="openObject(1)">Открыть объект</button>
+      </div>
+    </section>
+
+    <section id="object" class="hidden">
+      <div class="topbar">
+        <div>
+          <div id="objectTitle" class="title">ЖК Светлый</div>
+          <div id="objectAddress" class="subtitle">ул. Абая 10, кв. 24</div>
+        </div>
+        <div id="objectStatus" class="status assigned">Назначен</div>
+      </div>
+
+      <div class="card">
+        <div class="object-name">Монтаж освещения</div>
+        <div class="address">Проверить точки освещения, сделать фото ДО и ПОСЛЕ, отправить отчёт.</div>
+        <div class="timeline" id="timeline"></div>
+        <button id="mainAction" class="btn" onclick="nextStep()">Начать работу</button>
+        <button class="btn secondary" onclick="goHome()">Назад к объектам</button>
+        <button class="btn danger" onclick="showProblem()">Сообщить о проблеме</button>
+      </div>
+    </section>
+
+    <section id="problem" class="hidden">
+      <div class="topbar">
+        <div>
+          <div class="title">Проблема</div>
+          <div class="subtitle">Выберите причину</div>
+        </div>
+      </div>
+      <div class="card">
+        <button class="btn secondary" onclick="problemDone('Нет доступа')">Нет доступа</button>
+        <button class="btn secondary" onclick="problemDone('Нет материалов')">Нет материалов</button>
+        <button class="btn secondary" onclick="problemDone('Клиент недоступен')">Клиент недоступен</button>
+        <button class="btn danger" onclick="openObject(currentObjectIndex)">Отмена</button>
+      </div>
+    </section>
+
+    <nav class="nav">
+      <button class="active" onclick="goHome()">Объекты</button>
+      <button onclick="alert('История появится на следующем этапе')">История</button>
+      <button onclick="alert('Помощь появится на следующем этапе')">Помощь</button>
+    </nav>
+  </main>
+
+  <script>
+    const objects = [
+      { title: 'ЖК Светлый', address: 'ул. Абая 10, кв. 24', status: 'Назначен', statusClass: 'assigned', step: 0 },
+      { title: 'Частный дом', address: 'мкр. Таугуль', status: 'В работе', statusClass: 'progress', step: 1 }
+    ];
+    const steps = ['Назначен', 'Начал работу', 'Фото ДО', 'Фото ПОСЛЕ', 'Завершён'];
+    const actions = ['Начать работу', 'Сделать фото ДО', 'Сделать фото ПОСЛЕ', 'Завершить объект', 'Объект завершён'];
+    let currentObjectIndex = 0;
+
+    function renderTimeline() {
+      const object = objects[currentObjectIndex];
+      document.getElementById('timeline').innerHTML = steps.map((step, index) => {
+        const done = index <= object.step;
+        return `<div class="step ${done ? 'done-step' : ''}"><span class="dot">${done ? '✓' : '○'}</span>${step}</div>`;
+      }).join('');
+      const action = document.getElementById('mainAction');
+      action.innerText = actions[Math.min(object.step, actions.length - 1)];
+      action.disabled = object.step >= 4;
+      if (object.step >= 4) action.classList.add('secondary');
+    }
+
+    function openObject(index) {
+      currentObjectIndex = index;
+      const object = objects[index];
+      document.getElementById('home').classList.add('hidden');
+      document.getElementById('problem').classList.add('hidden');
+      document.getElementById('object').classList.remove('hidden');
+      document.getElementById('objectTitle').innerText = object.title;
+      document.getElementById('objectAddress').innerText = object.address;
+      const status = document.getElementById('objectStatus');
+      status.innerText = object.status;
+      status.className = `status ${object.statusClass}`;
+      renderTimeline();
+    }
+
+    function goHome() {
+      document.getElementById('object').classList.add('hidden');
+      document.getElementById('problem').classList.add('hidden');
+      document.getElementById('home').classList.remove('hidden');
+    }
+
+    function nextStep() {
+      const object = objects[currentObjectIndex];
+      if (object.step < 4) object.step += 1;
+      if (object.step >= 1 && object.step < 4) {
+        object.status = 'В работе';
+        object.statusClass = 'progress';
+      }
+      if (object.step >= 4) {
+        object.status = 'Завершён';
+        object.statusClass = 'done';
+      }
+      openObject(currentObjectIndex);
+    }
+
+    function showProblem() {
+      document.getElementById('object').classList.add('hidden');
+      document.getElementById('problem').classList.remove('hidden');
+    }
+
+    function problemDone(reason) {
+      alert(`Проблема отправлена: ${reason}`);
+      openObject(currentObjectIndex);
+    }
+  </script>
+</body>
+</html>
