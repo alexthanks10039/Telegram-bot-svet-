@@ -1,45 +1,59 @@
 # Telegram Bot Svet
 
-Telegram-бот для управления объектами, сотрудниками и фотоотчётами.
+Telegram Mini App на Flutter/Dart для управления объектами, сотрудниками и фотоотчётами.
 
-## Планируемый функционал
+## Концепция
 
-- Авторизация сотрудников
-- Управление объектами через админку
-- Назначение сотрудников на объекты
-- Фотоотчёты через Telegram
-- Система статусов заказов
-- Уведомления в реальном времени
-- Панель администратора
-- Хранение истории отчётов
+Проект строится как Telegram Mini App, который открывается внутри Telegram и даёт сотруднику app-like интерфейс вместо обычного чат-бота.
+
+## MVP функционал
+
+- Главный экран сотрудника
+- Список активных объектов
+- Карточка объекта
+- Статусы объекта
+- Таймлайн выполнения
+- Mock flow: начать работу, фото ДО, фото ПОСЛЕ, завершить объект
+- Заготовка под подключение Telegram WebApp API
+- Заготовка под backend API
 
 ## Стек
 
-- Node.js / NestJS
-- PostgreSQL
-- Telegram Bot API
-- React Admin Panel
-- Docker
+- Flutter Web
+- Dart
+- Telegram Mini Apps
+- Backend API later
+- PostgreSQL later
 
-## Архитектура
+## Архитектура MVP
 
-Admin Panel → Backend API → Telegram Bot → Employees
+Telegram → Mini App URL → Flutter Web App → Backend API later
 
-## MVP Flow
+## План разработки
 
-1. Администратор создаёт объект
-2. Назначает сотрудника
-3. Сотрудник получает объект в Telegram
-4. Отправляет фотоотчёт
-5. Админка получает статус и уведомление
+1. Flutter Web skeleton
+2. Telegram Mini App UI
+3. Mock data
+4. Navigation flow
+5. Telegram WebApp initData
+6. Backend API
+7. Photo reports
+8. Admin panel
+9. Deploy
 
-## TODO
+## Запуск локально
 
-- [ ] Архитектура проекта
-- [ ] Telegram Bot
-- [ ] Backend API
-- [ ] Admin Panel
-- [ ] Auth система
-- [ ] Upload фотоотчётов
-- [ ] Dashboard
-- [ ] Deploy
+```bash
+flutter pub get
+flutter run -d chrome
+```
+
+## Build
+
+```bash
+flutter build web
+```
+
+## Deploy
+
+Можно развернуть на Vercel, Netlify, Firebase Hosting или VPS. После deploy URL подключается в BotFather как Mini App / Web App URL.
